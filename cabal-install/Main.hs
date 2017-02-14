@@ -81,6 +81,7 @@ import qualified Distribution.Client.CmdHaddock   as CmdHaddock
 import qualified Distribution.Client.CmdRepl      as CmdRepl
 import qualified Distribution.Client.CmdTest      as CmdTest
 import qualified Distribution.Client.CmdExec      as CmdExec
+import qualified Distribution.Client.CmdRun       as CmdRun
 
 import Distribution.Client.Install            (install)
 import Distribution.Client.Configure          (configure, writeConfigFlags)
@@ -294,6 +295,7 @@ mainWorker args = topHandler $
       , regularCmd  CmdFreeze.freezeCommand       CmdFreeze.freezeAction
       , regularCmd  CmdHaddock.haddockCommand     CmdHaddock.haddockAction
       , regularCmd  CmdExec.execCommand           CmdExec.execAction
+      , regularCmd  CmdRun.runCommand             CmdRun.runAction
       ]
 
 type Action = GlobalFlags -> IO ()

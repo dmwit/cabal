@@ -51,7 +51,8 @@ module Distribution.Client.ProjectPlanning (
 
     -- TODO: [code cleanup] utils that should live in some shared place?
     createPackageDBIfMissing,
-    binDirectories
+    binDirectories,
+    binDirectoryFor
   ) where
 
 import Prelude ()
@@ -1803,8 +1804,7 @@ inplaceBinDirectory
   -> ElaboratedConfiguredPackage
   -> FilePath
 inplaceBinDirectory layout config package
-  =   distBuildDirectory layout (elabDistDirParams config package)
-  </> "build"
+  =   inplaceBinRoot layout config package
   </> case elabPkgOrComp package of
         ElabPackage _ -> ""
         ElabComponent comp -> case compComponentName comp >>=
@@ -1860,8 +1860,28 @@ binDirectories layout config package = case elabBuildStyle package of
                    $ package
   where
   noExecutables = null . PD.executables . elabPkgDescription $ package
-  root  =  distBuildDirectory layout (elabDistDirParams config package)
-       </> "build"
+  root = inplaceBinRoot layout config package
+
+-- | The path to the @build@ directory for an inplace build.
+inplaceBinRoot
+  :: DistDirLayout
+  -> ElaboratedSharedConfig
+  -> ElaboratedConfiguredPackage
+  -> FilePath
+inplaceBinRoot layout config package
+  =  distBuildDirectory layout (elabDistDirParams config package)
+ </> "build"
+
+-- | The path to the directory that contains a specific executable.
+binDirectoryFor
+  :: DistDirLayout
+  -> ElaboratedSharedConfig
+  -> ElaboratedConfiguredPackage
+  -> FilePath
+  -> FilePath
+binDirectoryFor layout config package exe = case elabBuildStyle package of
+  BuildAndInstall -> installedBinDirectory package
+  BuildInplaceOnly -> inplaceBinRoot layout config package </> exe
 
 -- | A newtype for 'SolverInstallPlan.SolverPlanPackage' for which the
 -- dependency graph considers only dependencies on libraries which are
